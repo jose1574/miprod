@@ -132,5 +132,22 @@ def create_app(test_config=None):
             flash(error, "danger")
 
         return redirect(url_for("home"))
+    
+    @app.route("/productos-nuevos")
+    def new_products():
+        new_products = []
+        try:
+            result = (
+                db.session.execute(
+                    text("SELECT * FROM ferre.new_products ")
+                )
+                .mappings()
+                .fetchall()
+            )
+            new_products = [dict(row) for row in result]
+        except Exception as e:
+            flash(f"Error al obtener los productos nuevos: {str(e)}", "danger")
+
+        return render_template("new_products.html", products=new_products)
 
     return app
