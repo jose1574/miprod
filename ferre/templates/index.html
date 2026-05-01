@@ -34,7 +34,7 @@
         <h2 class="text-lg font-semibold text-slate-100">Busqueda rapida</h2>
         <p class="mt-1 text-sm text-slate-400">Escanea o escribe el codigo de barras para autocompletar.</p>
 
-        <form action="{{ url_for('home') }}" method="get" class="mt-4 space-y-3">
+        <form id="search-form" action="{{ url_for('home') }}" method="get" class="mt-4 space-y-3">
           <label for="product-code" class="block text-sm font-medium text-slate-200">Codigo del producto</label>
           <div class="flex flex-col gap-3 sm:flex-row">
             <input
@@ -75,7 +75,7 @@
           <p class="mt-1 text-sm text-slate-400">Revisa la informacion recuperada y confirma el guardado.</p>
         {% endif %}
 
-        <form action="{{ url_for('save_product') }}" method="post" class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <form id="save-product-form" action="{{ url_for('save_product') }}" method="post" class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="sm:col-span-2">
             <label for="code" class="mb-1.5 block text-sm font-medium text-slate-200">Codigo principal</label>
             <input
@@ -166,4 +166,158 @@
     </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const FOCUS_AFTER_SAVE_KEY = "focusAfterSaveProduct";
+    const searchForm = document.getElementById("search-form");
+    const searchInput = document.getElementById("product-code");
+    const saveForm = document.getElementById("save-product-form");
+    const codeInput = document.getElementById("code");
+    const barCodeInput = document.getElementById("bar_code");
+    const descriptionInput = document.getElementById("description");
+    const departmentInput = document.getElementById("department");
+    const markInput = document.getElementById("mark");
+    const priceInput = document.getElementById("price");
+
+    if (!searchForm || !searchInput || !saveForm) {
+      return;
+    }
+
+    const sequenceInputs = [
+      codeInput,
+      barCodeInput,
+      descriptionInput,
+      departmentInput,
+      markInput,
+      priceInput,
+    ].filter(Boolean);
+
+    const focusAndSelect = (input) => {
+      if (!input || input.disabled) {
+        return;
+      }
+      input.focus();
+      input.select();
+    };
+
+    const forceUppercase = (input) => {
+      if (!input) {
+        return;
+      }
+
+      input.addEventListener("input", () => {
+        const cursorStart = input.selectionStart;
+        const cursorEnd = input.selectionEnd;
+        input.value = input.value.toUpperCase();
+        if (cursorStart !== null && cursorEnd !== null) {
+          input.setSelectionRange(cursorStart, cursorEnd);
+        }
+      });
+    };
+
+    sequenceInputs.forEach((input) => {
+      input.addEventListener("focus", () => {
+        input.select();
+      });
+    });
+
+    [descriptionInput, departmentInput, markInput].forEach(forceUppercase);
+
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        sessionStorage.setItem("focusAfterSearch", "code");
+      }
+    });
+
+    saveForm.addEventListener("submit", () => {
+      [descriptionInput, departmentInput, markInput].forEach((input) => {
+        if (input && typeof input.value === "string") {
+          input.value = input.value.toUpperCase();
+        }
+      });
+      sessionStorage.setItem(FOCUS_AFTER_SAVE_KEY, "product-code");
+    });
+
+    if (sessionStorage.getItem(FOCUS_AFTER_SAVE_KEY) === "product-code") {
+      focusAndSelect(searchInput);
+      sessionStorage.removeItem(FOCUS_AFTER_SAVE_KEY);
+      sessionStorage.removeItem("focusAfterSearch");
+      return;
+    }
+
+    const shouldFocusCode =
+      sessionStorage.getItem("focusAfterSearch") === "code" ||
+      searchInput.value.trim() !== "";
+
+    if (shouldFocusCode && codeInput) {
+      focusAndSelect(codeInput);
+      sessionStorage.removeItem("focusAfterSearch");
+    }
+
+    if (codeInput) {
+      codeInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") {
+          return;
+        }
+        event.preventDefault();
+        if (barCodeInput && !barCodeInput.disabled) {
+          focusAndSelect(barCodeInput);
+        } else {
+          focusAndSelect(descriptionInput);
+        }
+      });
+    }
+
+    if (barCodeInput) {
+      barCodeInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") {
+          return;
+        }
+        event.preventDefault();
+        focusAndSelect(descriptionInput);
+      });
+    }
+
+    if (descriptionInput) {
+      descriptionInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") {
+          return;
+        }
+        event.preventDefault();
+        focusAndSelect(departmentInput);
+      });
+    }
+
+    if (departmentInput) {
+      departmentInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") {
+          return;
+        }
+        event.preventDefault();
+        focusAndSelect(markInput);
+      });
+    }
+
+    if (markInput) {
+      markInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") {
+          return;
+        }
+        event.preventDefault();
+        focusAndSelect(priceInput);
+      });
+    }
+
+    if (priceInput) {
+      priceInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") {
+          return;
+        }
+        event.preventDefault();
+        saveForm.requestSubmit();
+      });
+    }
+  });
+</script>
 {% endblock %}
