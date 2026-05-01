@@ -1,5 +1,4 @@
-{% extends "base.html" %} 
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
 <h1>Aplicacion para busqueda de productos</h1>
 <br />
@@ -14,31 +13,92 @@
 </ul>
 <form action="{{ url_for('home') }}" method="get">
   <label for="product-code">Ingresa codigo del producto</label>
-  <input type="text" id="product-code" name="product-code" />
+  <input type="text" id="product-code" name="product-code" placeholder="Utiliza tu lector de codigo de barra"/>
   <input type="submit" value="Buscar" />
 </form>
 <br />
 <hr />
 
-
-
-
-{% with messages = get_flashed_messages(with_categories=true) %} {% if messages
-%}
-<div id="alerts">
-  {% for category, message in messages %}
-  <div class="alert alert-{{ category }}">{{ message }}</div>
-  {% endfor %}
+<div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <p class="flash {{ category }}">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 </div>
-{% endif %} {% endwith %} 
 
-{% if product %}
-  <div id="result">
-    <h3>Producto Encontrado y Registrado:</h3>
-    <p><strong>Código:</strong> {{ product.code }}</p>
-    <p><strong>Descripción:</strong> {{ product.description }}</p>
-    <p><strong>Marca:</strong> {{ product.mark }}</p>
-  </div>
-{% endif %}
 
-{% endblock %}
+{% if not product %}
+<h3>Crea tu propio producto</h3>
+{% else %}
+<h3>Utiliza producto encontrado</h3>
+{% endif%}
+<div>
+  <form action="{{ url_for('save_product') }}" method="post">
+    <label for="code">Codigo principal</label>
+    <input
+      type="text"
+      name="code"
+      list="code-list"
+      placeholder=""
+      value=""
+      required
+    /><br />
+    <datalist id="code-list">
+      {% for code in related_codes%}
+      <option value="{{ code }}">{% endfor %}</option>
+    </datalist>
+
+
+    <label for="code_provider">Codigo de barra</label>
+    <input
+      type="text"
+      name="bar_code"
+      id="bar_code"
+      placeholder="Opcional"
+      value="{{ code_search }}"
+      {% if product %}
+      disabled
+      {% endif %}
+    /><br />
+
+    <label for="description">Descripción</label>
+    <input
+      type="text"
+      name="description"
+      id="description"
+      placeholder="Agrege una descripcion al producto"
+      value="{{ product.description }}"
+      required
+    /><br />
+
+    <label for="deparment">Departamento</label>
+    <input
+      type="text"
+      name="department"
+      id="department"
+      value="{{ product.department_description }}"
+    /><br />
+
+    <label for="mark">Marca</label>
+    <input
+      type="text"
+      name="mark"
+      id="mark"
+      value="{{ product.mark }}"
+    /><br />
+
+    <label for="price ">Precio</label>
+    <input
+      type="number"
+      name="price"
+      id="price"
+      value="0"
+    /><br />
+
+    <input type="submit" value="Guardar" />
+  </form>
+</div>
+ {% endblock %}
