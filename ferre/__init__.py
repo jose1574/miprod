@@ -149,5 +149,19 @@ def create_app(test_config=None):
             flash(f"Error al obtener los productos nuevos: {str(e)}", "danger")
 
         return render_template("new_products.html", products=new_products)
+    
+    @app.route("/delete_product/<int:product_id>", methods=["POST"])
+    def delete_product(product_id):
+        try:
+            db.session.execute(
+                text("DELETE FROM ferre.new_products WHERE id = :id"),
+                {"id": product_id},
+            )
+            db.session.commit()
+            flash("Producto eliminado exitosamente", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al eliminar el producto: {str(e)}", "danger")
+        return redirect(url_for("new_products"))
 
     return app
