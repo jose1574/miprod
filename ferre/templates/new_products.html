@@ -38,6 +38,7 @@
                             <th scope="col" class="px-4 py-3">Descripcion</th>
                             <th scope="col" class="px-4 py-3">Departamento</th>
                             <th scope="col" class="px-4 py-3">Marca</th>
+                            <th scope="col" class="px-4 py-3">Unidad</th>
                             <th scope="col" class="px-4 py-3 text-right">Precio</th>
                             <th scope="col" class="px-4 py-3">Accion</th>
 
@@ -51,6 +52,7 @@
                                 <td class="px-4 py-3">{{ product.description }}</td>
                                 <td class="px-4 py-3">{{ product.department or '-' }}</td>
                                 <td class="px-4 py-3">{{ product.mark or '-' }}</td>
+                                <td class="px-4 py-3">{{ product.unit or '-' }}</td>
                                 <td class="px-4 py-3 text-right">${{ product.price }}</td>
                                 <td class="px-4 py-3">
                                     <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post" class="inline">

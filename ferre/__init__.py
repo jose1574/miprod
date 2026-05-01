@@ -46,9 +46,12 @@ def _resolve_product_info(main_code: str):
     result = (
         db.session.execute(
             text(
-                "SELECT p.*, d.description as department_description FROM products p "
+                "SELECT p.*, d.description as department_description, u.description as unit_description FROM products p "
                 "LEFT JOIN department d ON p.department = d.code "
-                "WHERE p.code = :code"
+                "LEFT JOIN products_units pu ON p.code = pu.product_code "
+                "LEFT JOIN units u ON pu.unit = u.code "
+                "WHERE p.code = :code "
+                "AND pu.main_unit = true"
             ),
             {"code": main_code},
         )
@@ -57,6 +60,7 @@ def _resolve_product_info(main_code: str):
     )
     if result:
         product_info = dict(result)
+        print(f"Información del producto encontrada: {product_info}")
     else:
         flash("No se encontró información del producto en la base de datos", "warning")
     return dict(product_info=product_info)
@@ -106,13 +110,14 @@ def create_app(test_config=None):
         description = request.form.get("description")
         department = request.form.get("department")
         mark = request.form.get("mark")
+        unit = request.form.get("unit")
         price = request.form.get("price")
 
         try:
             db.session.execute(
                 text(
-                    "INSERT INTO ferre.new_products (code, bar_code, description, department, mark, price) "
-                    "VALUES (:code, :bar_code, :description, :department, :mark, :price)"
+                    "INSERT INTO ferre.new_products (code, bar_code, description, department, mark, unit, price) "
+                    "VALUES (:code, :bar_code, :description, :department, :mark, :unit, :price)"
                 ),
                 {
                     "code": code,
@@ -120,6 +125,7 @@ def create_app(test_config=None):
                     "description": description,
                     "department": department,
                     "mark": mark,
+                    "unit": unit,
                     "price": price,
                 },
             )

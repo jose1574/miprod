@@ -103,9 +103,9 @@
               placeholder="Opcional"
               value="{{ code_search }}"
               {% if product %}
-              disabled
+              readonly
               {% endif %}
-              class="input-dark block w-full px-3 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+              class="input-dark block w-full px-3 py-2.5 text-sm read-only:cursor-not-allowed read-only:opacity-60"
             />
           </div>
 
@@ -144,6 +144,17 @@
             />
           </div>
 
+          <div>
+            <label for="unit" class="mb-1.5 block text-sm font-medium text-slate-200">Unidad</label>
+            <input
+              type="text"
+              name="unit"
+              id="unit"
+              value="{{ product.unit_description if product else '' }}"
+              class="input-dark block w-full px-3 py-2.5 text-sm"
+            />
+          </div>
+
           <div class="sm:col-span-2">
             <label for="price" class="mb-1.5 block text-sm font-medium text-slate-200">Precio</label>
             <input
@@ -178,6 +189,7 @@
     const descriptionInput = document.getElementById("description");
     const departmentInput = document.getElementById("department");
     const markInput = document.getElementById("mark");
+    const unitInput = document.getElementById("unit");
     const priceInput = document.getElementById("price");
 
     if (!searchForm || !searchInput || !saveForm) {
@@ -190,11 +202,12 @@
       descriptionInput,
       departmentInput,
       markInput,
+      unitInput,
       priceInput,
     ].filter(Boolean);
 
     const focusAndSelect = (input) => {
-      if (!input || input.disabled) {
+      if (!input || input.disabled || input.readOnly) {
         return;
       }
       input.focus();
@@ -231,7 +244,7 @@
     });
 
     saveForm.addEventListener("submit", () => {
-      [descriptionInput, departmentInput, markInput].forEach((input) => {
+      [descriptionInput, departmentInput, markInput, unitInput].forEach((input) => {
         if (input && typeof input.value === "string") {
           input.value = input.value.toUpperCase();
         }
@@ -261,7 +274,7 @@
           return;
         }
         event.preventDefault();
-        if (barCodeInput && !barCodeInput.disabled) {
+        if (barCodeInput && !barCodeInput.disabled && !barCodeInput.readOnly) {
           focusAndSelect(barCodeInput);
         } else {
           focusAndSelect(descriptionInput);
@@ -301,6 +314,16 @@
 
     if (markInput) {
       markInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") {
+          return;
+        }
+        event.preventDefault();
+        focusAndSelect(unitInput);
+      });
+    }
+
+    if (unitInput) {
+      unitInput.addEventListener("keydown", (event) => {
         if (event.key !== "Enter") {
           return;
         }
