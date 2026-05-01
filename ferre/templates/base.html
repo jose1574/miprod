@@ -3,10 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>app</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        colors: {
+                            brand: {
+                                50: '#eaf2ff',
+                                100: '#d7e6ff',
+                                200: '#b0cdff',
+                                300: '#85afff',
+                                400: '#628eff',
+                                500: '#3f6df5',
+                                600: '#3256d4',
+                                700: '#2a46ad',
+                                800: '#243c8d',
+                                900: '#1f326f'
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+        <title>{% block title %}Ferre{% endblock %}</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background:
+                    radial-gradient(circle at 15% 10%, rgba(63, 109, 245, 0.16), transparent 40%),
+                    radial-gradient(circle at 85% 20%, rgba(148, 163, 184, 0.08), transparent 30%),
+                    #0f172a;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #3256d4, #3f6df5);
+                color: #f8fafc;
+            }
+
+            .btn-primary:hover {
+                background: linear-gradient(135deg, #2a46ad, #3256d4);
+            }
+
+            .btn-secondary {
+                background: #364152;
+                color: #cbd5e1;
+            }
+
+            .btn-secondary:hover {
+                background: #475569;
+                color: #e2e8f0;
+            }
+
+            .input-dark {
+                border: 1px solid #475569;
+                border-radius: 0.75rem;
+                background-color: #1e293b;
+                color: #e2e8f0;
+            }
+
+            .input-dark::placeholder {
+                color: #94a3b8;
+            }
+
+            .input-dark:focus {
+                outline: none;
+                border-color: #3f6df5;
+                box-shadow: 0 0 0 3px rgba(63, 109, 245, 0.2);
+            }
+
+            .flash.error {
+                border: 1px solid #7f1d1d;
+                background: rgba(127, 29, 29, 0.2);
+                color: #fecaca;
+            }
+
+            .flash.warning {
+                border: 1px solid #854d0e;
+                background: rgba(133, 77, 14, 0.2);
+                color: #fde68a;
+            }
+
+            .flash.success {
+                border: 1px solid #14532d;
+                background: rgba(20, 83, 45, 0.2);
+                color: #bbf7d0;
+            }
+
+            .flash.exito {
+                border: 1px solid #14532d;
+                background: rgba(20, 83, 45, 0.2);
+                color: #bbf7d0;
+            }
+        </style>
 </head>
-<body>
-    {% block content %}
-    {% endblock %}  
+<body class="dark min-h-screen text-slate-100">
+        <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+            {% block content %}
+            {% endblock %}
+        </main>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </body>
 </html>
