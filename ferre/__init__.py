@@ -72,7 +72,7 @@ def create_app(test_config=None):
     db_password = os.getenv("PASSWORD_DB", "root")
     db_host = os.getenv("HOST_DB", "localhost")
     db_port = os.getenv("PORT_DB", "5432")
-    db_name = os.getenv("NAME_DB")
+    db_name = os.getenv("NAME_DB", "cadm_v1029")
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     )
@@ -169,5 +169,62 @@ def create_app(test_config=None):
             db.session.rollback()
             flash(f"Error al eliminar el producto: {str(e)}", "danger")
         return redirect(url_for("new_products"))
+
+    @app.route("/edit_product/<int:product_id>", methods=["GET", "POST"])
+    def edit_product(product_id):
+        if request.method == "POST":
+            code = request.form.get("code")
+            bar_code = request.form.get("bar_code")
+            description = request.form.get("description")
+            department = request.form.get("department")
+            mark = request.form.get("mark")
+            unit = request.form.get("unit")
+            price = request.form.get("price")
+
+            try:
+                db.session.execute(
+                    text(
+                        "UPDATE ferre.new_products "
+                        "SET code = :code, bar_code = :bar_code, description = :description, "
+                        "department = :department, mark = :mark, unit = :unit, price = :price "
+                        "WHERE id = :id"
+                    ),
+                    {
+                        "id": product_id,
+                        "code": code,
+                        "bar_code": bar_code,
+                        "description": description,
+                        "department": department,
+                        "mark": mark,
+                        "unit": unit,
+                        "price": price,
+                    },
+                )
+                db.session.commit()
+                flash("Producto actualizado exitosamente", "success")
+                return redirect(url_for("new_products"))
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error al actualizar el producto: {str(e)}", "danger")
+
+        try:
+            result = (
+                db.session.execute(
+                    text("SELECT * FROM ferre.new_products WHERE id = :id"),
+                    {"id": product_id},
+                )
+                .mappings()
+                .fetchone()
+            )
+
+            if not result:
+                flash("Producto no encontrado", "warning")
+                return redirect(url_for("new_products"))
+
+            product = dict(result)
+            return render_template("edit_product.html", product=product)
+        except Exception as e:
+            flash(f"Error al obtener el producto: {str(e)}", "danger")
+            return redirect(url_for("new_products"))
 
     return app

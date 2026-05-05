@@ -55,9 +55,12 @@
                                 <td class="px-4 py-3">{{ product.unit or '-' }}</td>
                                 <td class="px-4 py-3 text-right">${{ product.price }}</td>
                                 <td class="px-4 py-3">
-                                    <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post" class="inline">
-                                        <button type="submit" class="btn-danger">Eliminar</button>
-                                    </form>
+                                        <div class="flex items-center gap-2">
+                                            <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn-warning inline-block rounded-md px-2.5 py-1 text-xs font-medium" style="min-width: 60px;">Editar</a>
+                                            <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post" class="inline">
+                                                <button type="submit" class="btn-danger px-2.5 py-1 text-xs font-medium" style="min-width: 60px;">Eliminar</button>
+                                            </form>
+                                        </div>
                                 </td>
                             </tr>
                         {% endfor %}
