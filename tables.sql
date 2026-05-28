@@ -11,7 +11,11 @@ CREATE TABLE ferre.new_products
   department text,
   mark text,
   unit text,
-  price numeric(12,2),
+  unitary_cost numeric(12,2),
+  maximum_price numeric(12,2),
+  offer_price numeric(12,2),
+  higher_price numeric(12,2),
+  minimum_price numeric(12,2),
   CONSTRAINT new_products_pkey PRIMARY KEY (id ),
   CONSTRAINT new_products_code_key UNIQUE (code )
 )
