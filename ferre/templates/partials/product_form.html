@@ -12,13 +12,8 @@
           <div class="col-12">
             <label for="code" class="form-label">Codigo principal</label>
             <select name="code" id="code" class="form-select" required>
-              {% if product %}
-                <option value="{{ product.code }}" selected>{{ product.code }}</option>
-              {% endif %}
               {% for pc in product_codes %}
-                {% if pc.correlative and (not product or pc.correlative != product.code) %}
-                  <option value="{{ pc.correlative }}">{{ pc.correlative }}</option>
-                {% endif %}
+                  <option value="{{ pc.other_code }}">{{ pc.other_code }}</option>
               {% endfor %}
             </select>
           </div>

@@ -34,7 +34,7 @@ def _resolve_product_codes(main_code: str):
         .fetchall()
     )
     if result:
-        related_codes = [dict(row)["other_code"] for row in result]
+        related_codes = [dict(row) for row in result]
     else:
         flash("No se encontraron códigos relacionados en la base de datos", "warning")
     return related_codes
@@ -55,7 +55,6 @@ def _resolve_product(main_code: str):
     )
     if result:
         product_info = dict(result)
-        print(f"Información del producto encontrada: {product_info}")
     else:
         flash("No se encontró información del producto en la base de datos", "warning")
     return product_info

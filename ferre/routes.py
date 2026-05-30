@@ -32,6 +32,7 @@ def home():
     departments = _departments()
     marks = _marks()
     units = _units()
+    main_code = None
 
     
 
@@ -69,6 +70,7 @@ def home():
         marks=marks,
         units=units,
         existing_new_product=existing_new_product,
+        main_code=main_code 
     )
 
 
