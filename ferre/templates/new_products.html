@@ -3,62 +3,63 @@
 {% block title %}Ferre | Productos Nuevos{% endblock %}
 
 {% block content %}
-<section class="overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/80 shadow-2xl shadow-slate-950/40 backdrop-blur">
-    <div class="border-b border-slate-700/80 px-6 py-6 sm:px-8">
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Inventario guardado</p>
-                <h1 class="mt-2 text-2xl font-bold text-slate-100 sm:text-3xl">Lista de productos nuevos</h1>
-                <p class="mt-2 text-sm text-slate-300">Consulta los productos registrados y su fecha de creacion.</p>
+<section class="app-panel">
+    <div class="app-panel-header p-4 p-md-5">
+        <div class="row g-3 align-items-center justify-content-between">
+            <div class="col-12 col-lg-8">
+                <p class="app-muted mb-1 small text-uppercase fw-semibold">Inventario guardado</p>
+                <h1 class="h3 mb-2">Lista de productos nuevos</h1>
+                <p class="app-muted mb-0">Consulta los productos registrados y su fecha de creacion.</p>
             </div>
-            <a href="{{ url_for('home') }}" class="btn-secondary inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200">
-                Volver al formulario
-            </a>
+            <div class="col-12 col-lg-auto">
+                <div class="d-grid">
+                    <a href="{{ url_for('home') }}" class="btn btn-app-secondary">Volver al formulario</a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="px-6 py-6 sm:px-8">
+    <div class="p-4 p-md-5">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="mb-5 space-y-3">
+                <div class="mb-4 d-grid gap-2">
                     {% for category, message in messages %}
-                        <div class="flash {{ category }} rounded-xl px-4 py-3 text-sm font-medium">{{ message }}</div>
+                        <div class="flash {{ category }} px-3 py-2 small fw-semibold">{{ message }}</div>
                     {% endfor %}
                 </div>
             {% endif %}
         {% endwith %}
 
         {% if products %}
-            <div class="relative overflow-x-auto rounded-2xl border border-slate-700">
-                <table class="w-full text-left text-sm text-slate-300">
-                    <thead class="bg-slate-800 text-xs uppercase tracking-wider text-slate-300">
+            <div class="app-card p-2 p-md-3">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <thead>
                         <tr>
-                            <th scope="col" class="px-4 py-3">Codigo</th>
-                            <th scope="col" class="px-4 py-3">Codigo de barras</th>
-                            <th scope="col" class="px-4 py-3">Descripcion</th>
-                            <th scope="col" class="px-4 py-3">Departamento</th>
-                            <th scope="col" class="px-4 py-3">Marca</th>
-                            <th scope="col" class="px-4 py-3">Unidad</th>
-                            <th scope="col" class="px-4 py-3 text-right">Precio</th>
-                            <th scope="col" class="px-4 py-3">Accion</th>
+                            <th scope="col">Codigo</th>
+                            <th scope="col">Descripcion</th>
+                            <th scope="col">Departamento</th>
+                            <th scope="col">Marca</th>
+                            <th scope="col">Unidad</th>
+                            <th scope="col" class="text-end">Precio</th>
+                            <th scope="col">Accion</th>
 
                         </tr>
                     </thead>
                     <tbody>
                         {% for product in products %}
-                            <tr class="border-t border-slate-700 bg-slate-900/40 hover:bg-slate-800/60">
-                                <td class="px-4 py-3 font-medium text-slate-100">{{ product.code }}</td>
-                                <td class="px-4 py-3">{{ product.bar_code or '-' }}</td>
-                                <td class="px-4 py-3">{{ product.description }}</td>
-                                <td class="px-4 py-3">{{ product.department or '-' }}</td>
-                                <td class="px-4 py-3">{{ product.mark or '-' }}</td>
-                                <td class="px-4 py-3">{{ product.unit or '-' }}</td>
-                                <td class="px-4 py-3 text-right">${{ product.price }}</td>
-                                <td class="px-4 py-3">
-                                        <div class="flex items-center gap-2">
-                                            <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn-warning inline-block rounded-md px-2.5 py-1 text-xs font-medium" style="min-width: 60px;">Editar</a>
-                                            <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post" class="inline">
-                                                <button type="submit" class="btn-danger px-2.5 py-1 text-xs font-medium" style="min-width: 60px;">Eliminar</button>
+                            <tr>
+                                <td class="fw-semibold">{{ product.code }}</td>
+                                <td>{{ product.description }}</td>
+                                <td>{{ product.department or '-' }}</td>
+                                <td>{{ product.mark or '-' }}</td>
+                                <td>{{ product.unit or '-' }}</td>
+                                <td class="text-end">${{ product.price }}</td>
+                                <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                                            <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post">
+                                                <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
                                             </form>
                                         </div>
                                 </td>
@@ -66,11 +67,12 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </div>
             </div>
         {% else %}
-            <div class="rounded-2xl border border-dashed border-slate-700 bg-slate-800/40 px-6 py-8 text-center">
-                <p class="text-base font-semibold text-slate-200">Aun no hay productos guardados</p>
-                <p class="mt-1 text-sm text-slate-400">Agrega un producto desde el formulario principal para verlo aqui.</p>
+            <div class="app-card p-4 p-md-5 text-center">
+                <p class="h6 mb-1">Aun no hay productos guardados</p>
+                <p class="app-muted mb-0">Agrega un producto desde el formulario principal para verlo aqui.</p>
             </div>
         {% endif %}
     </div>

@@ -3,177 +3,73 @@
 {% block title %}Ferre | Productos{% endblock %}
 
 {% block content %}
-<section class="overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/80 shadow-2xl shadow-slate-950/40 backdrop-blur">
-  <div class="border-b border-slate-700/80 px-6 py-6 sm:px-8">
-    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Panel de creacion de listado de productos</p>
-        <h1 class="mt-2 text-2xl font-bold text-slate-100 sm:text-3xl">Aplicacion para busqueda de productos</h1>
-        <p class="mt-2 text-sm text-slate-300">Busca, completa y guarda productos con facilidad.</p>
+<section class="app-panel">
+  <div class="app-panel-header p-4 p-md-5">
+    <div class="row g-3 align-items-center justify-content-between">
+      <div class="col-12 col-lg-8">
+        <p class="app-muted mb-1 small text-uppercase fw-semibold">Panel de creacion de listado de productos</p>
+        <h1 class="h3 mb-2">Aplicacion para busqueda de productos</h1>
+        <p class="app-muted mb-0">Busca, completa y guarda productos con facilidad.</p>
       </div>
-      <div class="flex items-center gap-2">
-        <a
-          href="{{ url_for('home') }}"
-          class="btn-secondary inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200"
-        >
-          Inicio
-        </a>
-        <a
-          href="{{ url_for('new_products') }}"
-          class="btn-primary inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200"
-        >
-          Listado
-        </a>
+      <div class="col-12 col-lg-auto">
+        <div class="d-grid d-sm-flex gap-2">
+          <a href="{{ url_for('home') }}" class="btn btn-app-secondary">Inicio</a>
+          <a href="{{ url_for('new_products') }}" class="btn btn-app-primary">Listado</a>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="grid gap-6 px-6 py-6 sm:px-8 lg:grid-cols-12">
-    <div class="lg:col-span-5">
-      <div class="rounded-2xl border border-slate-700 bg-slate-800/70 p-4 sm:p-5">
-        <h2 class="text-lg font-semibold text-slate-100">Busqueda rapida</h2>
-        <p class="mt-1 text-sm text-slate-400">Escanea o escribe el codigo de barras para autocompletar.</p>
+  <div class="p-4 p-md-5">
+    <div class="row g-4">
+      <div class="col-12 col-xl-5">
+        <div class="app-card p-4">
+          <h2 class="h5 mb-1">Busqueda rapida</h2>
+          <p class="app-muted small mb-3">Escanea o escribe el codigo de barras para autocompletar.</p>
 
-        <form id="search-form" action="{{ url_for('home') }}" method="get" class="mt-4 space-y-3">
-          <label for="product-code" class="block text-sm font-medium text-slate-200">Codigo del producto</label>
-          <div class="flex flex-col gap-3 sm:flex-row">
-            <input
-              type="text"
-              id="product-code"
-              name="product-code"
-              placeholder="Utiliza tu lector de codigo de barra"
-              class="input-dark block w-full px-3 py-2.5 text-sm"
-            />
-            <button
-              type="submit"
-              class="btn-primary rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors duration-200"
-            >
-              Buscar
-            </button>
-          </div>
-        </form>
-      </div>
+          <form id="search-form" action="{{ url_for('home') }}" method="get">
+            <label for="product-code" class="form-label">Codigo del producto</label>
+            <div class="row g-2">
+              <div class="col-12 col-sm">
+                <input
+                  type="text"
+                  id="product-code"
+                  name="product-code"
+                  value="{{ code_search or '' }}"
+                  placeholder="Utiliza tu lector de codigo de barra"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-12 col-sm-auto d-grid">
+                <button type="submit" class="btn btn-app-primary px-4">Buscar</button>
+              </div>
+            </div>
+          </form>
+        </div>
 
-      <div class="mt-6 space-y-3">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="flash {{ category }} rounded-xl px-4 py-3 text-sm font-medium">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-      </div>
-    </div>
-
-    <div class="lg:col-span-7">
-      <div class="rounded-2xl border border-slate-700 bg-slate-800/60 p-4 sm:p-6">
-        {% if not product %}
-          <h3 class="text-lg font-semibold text-slate-100">Crea tu propio producto</h3>
-          <p class="mt-1 text-sm text-slate-400">Completa los datos y guarda un nuevo registro.</p>
-        {% else %}
-          <h3 class="text-lg font-semibold text-slate-100">Utiliza producto encontrado</h3>
-          <p class="mt-1 text-sm text-slate-400">Revisa la informacion recuperada y confirma el guardado.</p>
-        {% endif %}
-
-        <form id="save-product-form" action="{{ url_for('save_product') }}" method="post" class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div class="sm:col-span-2">
-            <label for="code" class="mb-1.5 block text-sm font-medium text-slate-200">Codigo principal</label>
-            <input
-              type="text"
-              id="code"
-              name="code"
-              list="code-list"
-              value=""
-              required
-              class="input-dark block w-full px-3 py-2.5 text-sm"
-            />
-            <datalist id="code-list">
-              {% for code in related_codes %}
-                <option value="{{ code }}"></option>
+        <div class="mt-3 d-grid gap-2">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="flash {{ category }} px-3 py-2 small fw-semibold">{{ message }}</div>
               {% endfor %}
-            </datalist>
-          </div>
+            {% endif %}
+          {% endwith %}
 
-          <div class="sm:col-span-2">
-            <label for="bar_code" class="mb-1.5 block text-sm font-medium text-slate-200">Codigo de barra</label>
-            <input
-              type="text"
-              name="bar_code"
-              id="bar_code"
-              placeholder="Opcional"
-              value="{{ code_search }}"
-              {% if product %}
-              readonly
-              {% endif %}
-              class="input-dark block w-full px-3 py-2.5 text-sm read-only:cursor-not-allowed read-only:opacity-60"
-            />
-          </div>
-
-          <div class="sm:col-span-2">
-            <label for="description" class="mb-1.5 block text-sm font-medium text-slate-200">Descripcion</label>
-            <input
-              type="text"
-              name="description"
-              id="description"
-              placeholder="Agrega una descripcion al producto"
-              value="{{ product.description if product else '' }}"
-              required
-              class="input-dark block w-full px-3 py-2.5 text-sm"
-            />
-          </div>
-
-          <div>
-            <label for="department" class="mb-1.5 block text-sm font-medium text-slate-200">Departamento</label>
-            <input
-              type="text"
-              name="department"
-              id="department"
-              value="{{ product.department_description if product else '' }}"
-              class="input-dark block w-full px-3 py-2.5 text-sm"
-            />
-          </div>
-
-          <div>
-            <label for="mark" class="mb-1.5 block text-sm font-medium text-slate-200">Marca</label>
-            <input
-              type="text"
-              name="mark"
-              id="mark"
-              value="{{ product.mark if product else '' }}"
-              class="input-dark block w-full px-3 py-2.5 text-sm"
-            />
-          </div>
-
-          <div>
-            <label for="unit" class="mb-1.5 block text-sm font-medium text-slate-200">Unidad</label>
-            <input
-              type="text"
-              name="unit"
-              id="unit"
-              value="{{ product.unit_description if product else '' }}"
-              class="input-dark block w-full px-3 py-2.5 text-sm"
-            />
-          </div>
-
-          <div class="sm:col-span-2">
-            <label for="price" class="mb-1.5 block text-sm font-medium text-slate-200">Precio</label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              name="price"
-              id="price"
-              value="0"
-              class="input-dark block w-full px-3 py-2.5 text-sm"
-            />
-          </div>
-
-          <div class="sm:col-span-2 flex justify-end gap-2 pt-1">
-            <button type="reset" class="btn-secondary rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors duration-200">Limpiar</button>
-            <button type="submit" class="btn-primary rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors duration-200">Guardar</button>
-          </div>
-        </form>
+          {% if existing_new_product %}
+            <div id="existing-product-alert" class="flash warning px-3 py-3 small">
+              <p class="mb-2 fw-semibold">El producto ya fue creado, ¿desea actualizarlo?</p>
+              <p class="mb-3">Codigo: {{ existing_new_product.code }}{% if existing_new_product.description %} | {{ existing_new_product.description }}{% endif %}</p>
+              <div class="d-grid d-sm-flex gap-2">
+                <a href="{{ url_for('edit_product', product_id=existing_new_product.id) }}" class="btn btn-sm btn-warning">Si</a>
+                <button id="existing-product-no" type="button" class="btn btn-sm btn-app-secondary">No</button>
+              </div>
+            </div>
+          {% endif %}
+        </div>
       </div>
+
+      {% include "partials/product_form.html" %}
     </div>
   </div>
 </section>
@@ -184,6 +80,8 @@
     const searchForm = document.getElementById("search-form");
     const searchInput = document.getElementById("product-code");
     const saveForm = document.getElementById("save-product-form");
+    const existingProductAlert = document.getElementById("existing-product-alert");
+    const existingProductNoBtn = document.getElementById("existing-product-no");
     const codeInput = document.getElementById("code");
     const barCodeInput = document.getElementById("bar_code");
     const descriptionInput = document.getElementById("description");
@@ -228,6 +126,16 @@
         }
       });
     };
+
+    if (existingProductNoBtn) {
+      existingProductNoBtn.addEventListener("click", () => {
+        if (existingProductAlert) {
+          existingProductAlert.style.display = "none";
+        }
+        searchInput.value = "";
+        focusAndSelect(searchInput);
+      });
+    }
 
     sequenceInputs.forEach((input) => {
       input.addEventListener("focus", () => {

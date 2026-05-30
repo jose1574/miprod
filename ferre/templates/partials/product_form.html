@@ -1,0 +1,140 @@
+<div class="col-12 col-xl-7">
+      <div class="app-card p-4">
+        {% if not product %}
+          <h3 class="h5 mb-1">Crea tu propio producto</h3>
+          <p class="app-muted small mb-3">Completa los datos y guarda un nuevo registro.</p>
+        {% else %}
+          <h3 class="h5 mb-1">Utiliza producto encontrado</h3>
+          <p class="app-muted small mb-3">Revisa la informacion recuperada y confirma el guardado.</p>
+        {% endif %}
+
+        <form id="save-product-form" action="{{ url_for('save_product') }}" method="post" class="row g-3">
+          <div class="col-12">
+            <label for="code" class="form-label">Codigo principal</label>
+            <select name="code" id="code" class="form-select" required>
+              {% if product %}
+                <option value="{{ product.code }}" selected>{{ product.code }}</option>
+              {% endif %}
+              {% for pc in product_codes %}
+                {% if pc.correlative and (not product or pc.correlative != product.code) %}
+                  <option value="{{ pc.correlative }}">{{ pc.correlative }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label for="description" class="form-label">Descripcion</label>
+            <input
+              type="text"
+              name="description"
+              id="description"
+              placeholder="Agrega una descripcion al producto"
+              value="{{ product.description if product else '' }}"
+              required
+              class="form-control"
+            />
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label for="department" class="form-label">Departamento</label>
+            <select name="department" id="department" class="form-select">
+              <option value="" >Sin departamento</option>
+              {% for dept in departments %}
+                <option value="{{ dept.code }}" {% if product and product.department == dept.code %}selected{% endif %}>{{ dept.description }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label for="mark" class="form-label">Marca</label>
+            <select name="mark" id="mark" class="form-select">
+              <option value="" >Sin marca</option>
+              {% for mark in marks %}
+                <option value="{{ mark.code }}" {% if product and product.mark == mark.code %}selected{% endif %}>{{ mark.description }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label for="unit" class="form-label">Unidad</label>
+            <select name="unit" id="unit" class="form-select">
+              <option value="" >Sin unidad</option>
+              {% for unit in units %}
+                <option value="{{ unit.code }}" {% if  product_unit and product_unit.unit == unit.code %}selected{% endif %}>{{ unit.description }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <p class="h3">Costo</p>
+          <div class="col-12 col-md-6">
+            <label for="price" class="form-label">Precio de costo</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="unitary_cost"
+              id="unitary_cost"
+              value="{{ product_unit.unitary_cost if product_unit else 0 }}"
+              class="form-control"
+            />
+          </div>
+          <hr>
+          <p class="h3">Lista de precios</p>
+          <div class="col-12 col-md-6">
+            <label for="price" class="form-label">Precio Maximo</label>
+            <input
+              type="text"
+              name="maximum_price"
+              id="maximum_price"
+              value="{{ product_unit.maximum_price if product_unit else '' }}"
+              class="form-control"
+            />
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label for="price" class="form-label">Precio Oferta</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="offer_price"
+              id="offer_price"
+              value="{{ product_unit.offer_price if product_unit and product_unit.offer_price is not none else 0 }}"
+              class="form-control"
+            />
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label for="price" class="form-label">Precio Mayor</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="higher_price"
+              id="higher_price"
+              value="{{ product_unit.higher_price if product_unit and product_unit.higher_price is not none else 0 }}"
+              class="form-control"
+            />
+          </div>
+
+
+          <div class="col-12 col-md-6">
+            <label for="price" class="form-label">Precio Minimo</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              name="minimum_price"
+              id="minimum_price"
+              value="{{ product_unit.minimum_price if product_unit and product_unit.minimum_price is not none else 0 }}"
+              class="form-control"
+            />
+          </div>
+
+          <div class="col-12 d-grid d-sm-flex justify-content-sm-end gap-2 pt-1">
+            <button type="reset" class="btn btn-app-secondary">Limpiar</button>
+            <button type="submit" class="btn btn-app-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>

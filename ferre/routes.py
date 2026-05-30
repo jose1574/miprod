@@ -2,91 +2,85 @@
 from . import app, db
 from sqlalchemy import text
 
+
+
 from flask import flash, render_template, request, redirect, url_for
+from .services.query import (
+    _resolve_main_code,
+    _resolve_product_codes,
+    _resolve_product,
+    _resolve_product_units,
+    _departments,
+    _marks,
+    _units,
+    _resolve_product_main_unit
+)
 
 
-def _resolve_main_code(code: str):
-    main_code = None
-    result = (
-        db.session.execute(
-            text("SELECT * FROM products_codes WHERE other_code = :code"),
-            {"code": code},
-        )
-        .mappings()
-        .fetchone()
-    )
-    if result:
-        main_code = dict(result)["main_code"]
-    else:
-        flash("Código no encontrado en la base de datos", "warning")
-    return main_code
 
 
-# funcion que devuelve todos los codigos realacionados a un codigo principal, incluyendo el mismo codigo principal
-def _resolve_related_codes(main_code: str):
-    related_codes = []
-    result = (
-        db.session.execute(
-            text("SELECT * FROM products_codes WHERE main_code = :main_code"),
-            {"main_code": main_code},
-        )
-        .mappings()
-        .fetchall()
-    )
-    if result:
-        related_codes = [dict(row)["other_code"] for row in result]
-    else:
-        flash("No se encontraron códigos relacionados en la base de datos", "warning")
-    return dict(related_codes=related_codes)
-
-
-def _resolve_product_info(main_code: str):
-    product_info = None
-    result = (
-        db.session.execute(
-            text(
-                "SELECT p.*, d.description as department_description, u.description as unit_description FROM products p "
-                "LEFT JOIN department d ON p.department = d.code "
-                "LEFT JOIN products_units pu ON p.code = pu.product_code "
-                "LEFT JOIN units u ON pu.unit = u.code "
-                "WHERE p.code = :code "
-                "AND pu.main_unit = true"
-            ),
-            {"code": main_code},
-        )
-        .mappings()
-        .fetchone()
-    )
-    if result:
-        product_info = dict(result)
-        print(f"Información del producto encontrada: {product_info}")
-    else:
-        flash("No se encontró información del producto en la base de datos", "warning")
-    return dict(product_info=product_info)
 
 
 @app.route("/")
 def home():
-    product_code = request.args.get("product-code")
-    product_info = None
-    related_codes_result = {"related_codes": []}
+    code_search = request.args.get("product-code")
+    product = None
+    existing_new_product = None
+    products_codes = []
+    product_units = []
+    product_main_unit = None
+    departments = _departments()
+    marks = _marks()
+    units = _units()
 
+    
+
+    
     try:
-        if product_code:
-            main_code = _resolve_main_code(product_code)
+        if code_search:
+            main_code = _resolve_main_code(code_search)
             if main_code:
-                related_codes_result = _resolve_related_codes(main_code)
-                product_info_result = _resolve_product_info(main_code)
-                product_info = product_info_result["product_info"]
+                product = _resolve_product(main_code)
+                products_codes = _resolve_product_codes(main_code)
+                product_units = _resolve_product_units(main_code)
+                product_main_unit = _resolve_product_main_unit(main_code)
+
+                existing_row = (
+                    db.session.execute(
+                        text("SELECT id, code, description FROM ferre.new_products WHERE code = :code"),
+                        {"code": main_code},
+                    )
+                    .mappings()
+                    .fetchone()
+                )
+                if existing_row:
+                    existing_new_product = dict(existing_row)
     except Exception as e:
         flash(f"Error al procesar la solicitud: {str(e)}", "danger")
 
     return render_template(
         "index.html",
-        product=product_info,
-        code_search=product_code,
-        related_codes=related_codes_result["related_codes"],
+        code_search=code_search,
+        product=product,
+        product_codes=products_codes,
+        product_units=product_units,
+        product_unit=product_main_unit,
+        departments=departments,
+        marks=marks,
+        units=units,
+        existing_new_product=existing_new_product,
     )
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route("/save_product", methods=["POST"])
 def save_product():
@@ -96,22 +90,39 @@ def save_product():
     department = request.form.get("department")
     mark = request.form.get("mark")
     unit = request.form.get("unit")
-    price = request.form.get("price")
+    unitary_cost = request.form.get("unitary_cost")
+    maximum_price = request.form.get("maximum_price")
+    offer_price = request.form.get("offer_price")
+    higher_price = request.form.get("higher_price")
+    minimum_price = request.form.get("minimum_price")
 
     try:
         db.session.execute(
             text(
-                "INSERT INTO ferre.new_products (code, bar_code, description, department, mark, unit, price) "
-                "VALUES (:code, :bar_code, :description, :department, :mark, :unit, :price)"
+                "INSERT INTO ferre.new_products (code," \
+                " description, " \
+                "department, " \
+                "mark, " \
+                "unit, " \
+                "unitary_cost, " \
+                "maximum_price, " \
+                "offer_price, " \
+                "higher_price, " \
+                "minimum_price " \
+                ") "
+                "VALUES (:code, :description, :department, :mark, :unit, :unitary_cost, :maximum_price, :offer_price, :higher_price, :minimum_price)"
             ),
             {
                 "code": code,
-                "bar_code": bar_code,
                 "description": description,
                 "department": department,
                 "mark": mark,
                 "unit": unit,
-                "price": price,
+                "unitary_cost": request.form.get("unitary_cost"),
+                "maximum_price": request.form.get("maximum_price"),
+                "offer_price": request.form.get("offer_price"),
+                "higher_price": higher_price,
+                "minimum_price": minimum_price,
             },
         )
         db.session.commit()
@@ -164,25 +175,34 @@ def edit_product(product_id):
         department = request.form.get("department")
         mark = request.form.get("mark")
         unit = request.form.get("unit")
-        price = request.form.get("price")
+        unitary_cost = request.form.get("unitary_cost")
+        maximum_price = request.form.get("maximum_price")
+        offer_price = request.form.get("offer_price")
+        higher_price = request.form.get("higher_price")
+        minimum_price = request.form.get("minimum_price")
 
         try:
             db.session.execute(
                 text(
                     "UPDATE ferre.new_products "
-                    "SET code = :code, bar_code = :bar_code, description = :description, "
-                    "department = :department, mark = :mark, unit = :unit, price = :price "
+                    "SET code = :code, description = :description, "
+                    "department = :department, mark = :mark, unit = :unit, unitary_cost = :unitary_cost, "
+                    "maximum_price = :maximum_price, offer_price = :offer_price, "
+                    "higher_price = :higher_price, minimum_price = :minimum_price "
                     "WHERE id = :id"
                 ),
                 {
                     "id": product_id,
                     "code": code,
-                    "bar_code": bar_code,
                     "description": description,
                     "department": department,
                     "mark": mark,
                     "unit": unit,
-                    "price": price,
+                    "unitary_cost": unitary_cost,
+                    "maximum_price": maximum_price,
+                    "offer_price": offer_price,
+                    "higher_price": higher_price,
+                    "minimum_price": minimum_price,
                 },
             )
             db.session.commit()
@@ -191,6 +211,10 @@ def edit_product(product_id):
         except Exception as e:
             db.session.rollback()
             flash(f"Error al actualizar el producto: {str(e)}", "danger")
+
+    departments = _departments()
+    marks = _marks()
+    units = _units()
 
     try:
         result = (
@@ -207,7 +231,13 @@ def edit_product(product_id):
             return redirect(url_for("new_products"))
 
         product = dict(result)
-        return render_template("edit_product.html", product=product)
+        return render_template(
+            "partials/update_product_form.html",
+            product=product,
+            departments=departments,
+            marks=marks,
+            units=units,
+        )
     except Exception as e:
         flash(f"Error al obtener el producto: {str(e)}", "danger")
         return redirect(url_for("new_products"))
