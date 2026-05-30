@@ -87,7 +87,7 @@ def home():
 @app.route("/save_product", methods=["POST"])
 def save_product():
     code = request.form.get("code")
-    bar_code = request.form.get("bar_code")
+    old_code = request.form.get("old_code")
     description = request.form.get("description")
     department = request.form.get("department")
     mark = request.form.get("mark")
@@ -101,7 +101,9 @@ def save_product():
     try:
         db.session.execute(
             text(
-                "INSERT INTO ferre.new_products (code," \
+                "INSERT INTO ferre.new_products (" \
+                "code," \
+                " old_code," \
                 " description, " \
                 "department, " \
                 "mark, " \
@@ -112,10 +114,11 @@ def save_product():
                 "higher_price, " \
                 "minimum_price " \
                 ") "
-                "VALUES (:code, :description, :department, :mark, :unit, :unitary_cost, :maximum_price, :offer_price, :higher_price, :minimum_price)"
+                "VALUES (:code, :old_code, :description, :department, :mark, :unit, :unitary_cost, :maximum_price, :offer_price, :higher_price, :minimum_price)"
             ),
             {
                 "code": code,
+                "old_code": old_code,
                 "description": description,
                 "department": department,
                 "mark": mark,
@@ -172,7 +175,7 @@ def delete_product(product_id):
 def edit_product(product_id):
     if request.method == "POST":
         code = request.form.get("code")
-        bar_code = request.form.get("bar_code")
+        old_code = request.form.get("old_code")
         description = request.form.get("description")
         department = request.form.get("department")
         mark = request.form.get("mark")
@@ -187,7 +190,7 @@ def edit_product(product_id):
             db.session.execute(
                 text(
                     "UPDATE ferre.new_products "
-                    "SET code = :code, description = :description, "
+                    "SET code = :code, old_code = :old_code, description = :description, "
                     "department = :department, mark = :mark, unit = :unit, unitary_cost = :unitary_cost, "
                     "maximum_price = :maximum_price, offer_price = :offer_price, "
                     "higher_price = :higher_price, minimum_price = :minimum_price "
@@ -196,6 +199,7 @@ def edit_product(product_id):
                 {
                     "id": product_id,
                     "code": code,
+                    "old_code": old_code,
                     "description": description,
                     "department": department,
                     "mark": mark,

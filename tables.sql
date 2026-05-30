@@ -7,6 +7,7 @@ CREATE TABLE ferre.new_products
   id serial NOT NULL,
   code text NOT NULL,
   description text,
+  old_code text,
   department text,
   mark text,
   unit text,

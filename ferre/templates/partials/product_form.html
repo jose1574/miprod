@@ -9,6 +9,8 @@
         {% endif %}
 
         <form id="save-product-form" action="{{ url_for('save_product') }}" method="post" class="row g-3">
+
+        <input type="hidden" name="old_code" value="{{ main_code }}" />
           <div class="col-12">
             <label for="code" class="form-label">Codigo principal</label>
             <select name="code" id="code" class="form-select" required>
