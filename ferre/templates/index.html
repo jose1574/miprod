@@ -83,6 +83,8 @@
     const existingProductAlert = document.getElementById("existing-product-alert");
     const existingProductNoBtn = document.getElementById("existing-product-no");
     const codeInput = document.getElementById("code");
+    const codeDropdownToggle = document.getElementById("code-dropdown-toggle");
+    const codeDropdownMenu = document.getElementById("code-dropdown-menu");
     const barCodeInput = document.getElementById("bar_code");
     const descriptionInput = document.getElementById("description");
     const departmentInput = document.getElementById("department");
@@ -134,6 +136,45 @@
         }
         searchInput.value = "";
         focusAndSelect(searchInput);
+      });
+    }
+
+    if (codeInput && codeDropdownToggle && codeDropdownMenu && window.bootstrap && window.bootstrap.Dropdown) {
+      const codeDropdown = window.bootstrap.Dropdown.getOrCreateInstance(codeDropdownToggle);
+      const codeItems = Array.from(codeDropdownMenu.querySelectorAll(".code-dropdown-item"));
+
+      const filterCodeOptions = () => {
+        const query = codeInput.value.trim().toUpperCase();
+        let visibleCount = 0;
+
+        codeItems.forEach((item) => {
+          const code = (item.dataset.code || "").toUpperCase();
+          const isVisible = query === "" || code.includes(query);
+          item.parentElement.hidden = !isVisible;
+          if (isVisible) {
+            visibleCount += 1;
+          }
+        });
+
+        if (visibleCount > 0) {
+          codeDropdown.show();
+        } else {
+          codeDropdown.hide();
+        }
+      };
+
+      codeInput.addEventListener("focus", () => {
+        codeDropdown.show();
+      });
+
+      codeInput.addEventListener("input", filterCodeOptions);
+
+      codeItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          codeInput.value = item.dataset.code || "";
+          codeDropdown.hide();
+          focusAndSelect(codeInput);
+        });
       });
     }
 

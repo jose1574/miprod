@@ -13,11 +13,29 @@
         <input type="hidden" name="old_code" value="{{ main_code }}" />
           <div class="col-12">
             <label for="code" class="form-label">Codigo principal</label>
-            <select name="code" id="code" class="form-select" required>
-              {% for pc in product_codes %}
-                  <option value="{{ pc.other_code }}">{{ pc.other_code }}</option>
-              {% endfor %}
-            </select>
+            <div class="dropdown" id="code-dropdown-wrapper">
+              <div class="input-group" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                <input
+                  type="text"
+                  id="code"
+                  name="code"
+                  value="{{ product.code if product else main_code }}"
+                  placeholder="Selecciona o escribe un codigo"
+                  required
+                  autocomplete="off"
+                  class="form-control"
+                />
+                <button id="code-dropdown-toggle" class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"></button>
+              </div>
+              <ul class="dropdown-menu w-100" id="code-dropdown-menu">
+                {% for pc in product_codes %}
+                  {% set code_value = pc.other_code if pc.other_code is defined else pc %}
+                  <li>
+                    <button type="button" class="dropdown-item code-dropdown-item" data-code="{{ code_value }}">{{ code_value }}</button>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
 
           <div class="col-12">
@@ -83,7 +101,7 @@
               type="text"
               name="maximum_price"
               id="maximum_price"
-              value="{{ product_unit.maximum_price if product_unit else '' }}"
+              value="{{ product_unit.maximum_price if product_unit and product_unit.maximum_price is not none else 0 }}"
               class="form-control"
             />
           </div>
