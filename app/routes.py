@@ -48,7 +48,7 @@ def home():
 
                 existing_row = (
                     db.session.execute(
-                        text("SELECT id, code, description FROM ferre.new_products WHERE code = :code"),
+                        text("SELECT id, code, description FROM my_prods.new_products WHERE code = :code"),
                         {"code": main_code},
                     )
                     .mappings()
@@ -101,7 +101,7 @@ def save_product():
     try:
         db.session.execute(
             text(
-                "INSERT INTO ferre.new_products (" \
+                "INSERT INTO my_prods.new_products (" \
                 "code," \
                 " old_code," \
                 " description, " \
@@ -146,7 +146,7 @@ def new_products():
     try:
         result = (
             db.session.execute(
-                text("SELECT * FROM ferre.new_products ")
+                text("SELECT * FROM my_prods.new_products ")
             )
             .mappings()
             .fetchall()
@@ -161,7 +161,7 @@ def new_products():
 def delete_product(product_id):
     try:
         db.session.execute(
-            text("DELETE FROM ferre.new_products WHERE id = :id"),
+            text("DELETE FROM my_prods.new_products WHERE id = :id"),
             {"id": product_id},
         )
         db.session.commit()
@@ -189,7 +189,7 @@ def edit_product(product_id):
         try:
             db.session.execute(
                 text(
-                    "UPDATE ferre.new_products "
+                    "UPDATE my_prods.new_products "
                     "SET code = :code, old_code = :old_code, description = :description, "
                     "department = :department, mark = :mark, unit = :unit, unitary_cost = :unitary_cost, "
                     "maximum_price = :maximum_price, offer_price = :offer_price, "
@@ -225,7 +225,7 @@ def edit_product(product_id):
     try:
         result = (
             db.session.execute(
-                text("SELECT * FROM ferre.new_products WHERE id = :id"),
+                text("SELECT * FROM my_prods.new_products WHERE id = :id"),
                 {"id": product_id},
             )
             .mappings()

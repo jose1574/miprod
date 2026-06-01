@@ -1,8 +1,8 @@
--- Table: ferre.new_products
+-- Table: my_prods.new_products
 
--- DROP TABLE ferre.new_products;
+-- DROP TABLE my_prods.new_products;
 
-CREATE TABLE ferre.new_products
+CREATE TABLE my_prods.new_products
 (
   id serial NOT NULL,
   code text NOT NULL,
@@ -22,5 +22,5 @@ CREATE TABLE ferre.new_products
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE ferre.new_products
+ALTER TABLE my_prods.new_products
   OWNER TO postgres;
